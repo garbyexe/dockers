@@ -1,0 +1,29 @@
+FROM kasmweb/core-ubuntu-focal:1.13.0-rolling
+USER root
+
+ENV HOME /home/kasm-default-profile
+ENV STARTUPDIR /dockerstartup
+ENV INST_SCRIPTS $STARTUPDIR/install
+WORKDIR $HOME
+
+######### Customize Container Here ###########
+
+RUN  wget https://files.multimc.org/downloads/multimc_1.6-1.deb \
+&& apt update \
+&& apt install -y ./multimc_1.6-1.deb
+
+
+RUN echo "/usr/bin/desktop_ready && /opt/multimc/run.sh &" > $STARTUPDIR/custom_startup.sh \
+&& chmod +x $STARTUPDIR/custom_startup.sh
+
+COPY  ./Wallpaper.png /usr/share/extra/backgrounds/bg_default.png
+######### End Customizations ###########
+
+RUN chown 1000:0 $HOME
+RUN $STARTUPDIR/set_user_permission.sh $HOME
+
+ENV HOME /home/kasm-user
+WORKDIR $HOME
+RUN mkdir -p $HOME && chown -R 1000:0 $HOME
+
+USER 1000
